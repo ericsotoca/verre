@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Verre Chantant v2.0 - Avec Préréglages</title>
+    <title>Le Verre Chantant v3.0 - Niveau d'Eau</title>
     
     <!-- ========================= SECTION CSS ========================= -->
     <style>
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
+            --water-color: rgba(0, 150, 255, 0.4);
             --bg-color: #f8f9fa;
             --card-bg-color: #ffffff;
             --text-color: #212529;
@@ -43,23 +44,28 @@
             padding-bottom: 1rem;
             margin-bottom: 1rem;
         }
-
+        
+        h1, h2 {
+            margin: 0;
+            padding: 0;
+        }
         header h1 {
             color: var(--primary-color);
-            margin: 0;
         }
 
-        .presets {
-            text-align: center;
+        .setup-section {
             margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
         }
-
-        .presets h2 {
+        .setup-section h2 {
             font-size: 1.1rem;
             margin-bottom: 0.75rem;
+            text-align: center;
         }
 
-        .presets .preset-buttons {
+        .preset-buttons, .water-level-options {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
@@ -75,12 +81,23 @@
             transition: all 0.2s;
         }
         
-        .preset-btn:hover {
-            background-color: #e9ecef;
-        }
-
         .preset-btn.active {
             background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .water-level-options label {
+            padding: 0.6rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + label {
+             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
         }
@@ -120,7 +137,6 @@
             border: 1px solid #ccc;
             background-color: var(--card-bg-color);
             cursor: pointer;
-            transition: background-color 0.2s;
         }
         
         #start-stop-button {
@@ -134,10 +150,7 @@
             border-radius: 8px;
             cursor: pointer;
         }
-
-        #start-stop-button.active {
-            background-color: #dc3545;
-        }
+        #start-stop-button.active { background-color: #dc3545; }
 
         .visualization {
             height: 120px;
@@ -147,20 +160,12 @@
             margin-top: 1.5rem;
         }
 
-        .glass {
-            position: relative;
-        }
-        .glass.vibrating {
-            animation: shake 0.2s infinite;
-        }
-        .glass > div {
-            transition: opacity 0.3s;
-        }
-        .glass .hidden {
-            display: none;
-        }
+        .glass { position: relative; }
+        .glass.vibrating { animation: shake 0.2s infinite; }
+        .glass > div { transition: opacity 0.3s; }
+        .glass .hidden { display: none; }
         
-        /* Formes des verres */
+        .glass-bowl { position: relative; overflow: hidden; }
         .glass-stem { width: 6px; height: 40px; background-color: var(--secondary-color); margin: 0 auto; }
         .glass-base { width: 50px; height: 6px; background-color: var(--secondary-color); border-radius: 3px; margin: 0 auto; }
         
@@ -168,6 +173,15 @@
         .flute-bowl { width: 40px; height: 90px; border: 4px solid var(--secondary-color); border-top: none; border-radius: 0 0 15px 15px; }
         .water-bowl { width: 70px; height: 60px; border: 4px solid var(--secondary-color); border-top: none; border-radius: 0 0 10px 10px; }
 
+        .water-level {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            height: 0;
+            background-color: var(--water-color);
+            transition: height 0.3s ease-out;
+        }
+        .glass.has-water .water-level { height: 50%; }
 
         @keyframes shake {
             0% { transform: translate(1px, 0); }
@@ -179,20 +193,28 @@
 <body>
     <div class="container">
         <header>
-            <h1>Le Verre Chantant 2.0</h1>
+            <h1>Le Verre Chantant 3.0</h1>
+            <p>Observez la résonance sur la surface de l'eau !</p>
         </header>
 
-        <section class="presets">
-            <h2>1. Choisissez un type de verre</h2>
+        <section class="setup-section">
+            <h2>1. Configuration du verre</h2>
             <div class="preset-buttons">
-                <button class="preset-btn" data-preset="wine">Vin</button>
+                <button class="preset-btn active" data-preset="wine">Vin</button>
                 <button class="preset-btn" data-preset="flute">Flûte</button>
                 <button class="preset-btn" data-preset="water">Eau</button>
+            </div>
+            <div class="water-level-options" style="margin-top: 1rem;">
+                <input type="radio" id="level-empty" name="waterLevel" value="empty" checked>
+                <label for="level-empty">Vide</label>
+                
+                <input type="radio" id="level-half" name="waterLevel" value="half">
+                <label for="level-half">À moitié plein</label>
             </div>
         </section>
 
         <main class="control-panel">
-            <h2>2. Affinez la fréquence</h2>
+            <h2>2. Recherche de la fréquence</h2>
             <div class="frequency-display">
                 <span id="frequency-value">550</span> Hz
             </div>
@@ -210,13 +232,16 @@
             <div class="visualization">
                 <div id="glass-visual" class="glass">
                     <div id="wine-visual">
-                        <div class="wine-bowl"></div><div class="glass-stem"></div><div class="glass-base"></div>
+                        <div class="wine-bowl glass-bowl"><div class="water-level"></div></div>
+                        <div class="glass-stem"></div><div class="glass-base"></div>
                     </div>
                     <div id="flute-visual" class="hidden">
-                        <div class="flute-bowl"></div><div class="glass-stem"></div><div class="glass-base"></div>
+                        <div class="flute-bowl glass-bowl"><div class="water-level"></div></div>
+                        <div class="glass-stem"></div><div class="glass-base"></div>
                     </div>
                     <div id="water-visual" class="hidden">
-                        <div class="water-bowl"></div><div class="glass-stem"></div><div class="glass-base"></div>
+                        <div class="water-bowl glass-bowl"><div class="water-level"></div></div>
+                        <div class="glass-stem"></div><div class="glass-base"></div>
                     </div>
                 </div>
             </div>
@@ -233,19 +258,19 @@
             const minusBtn = document.getElementById('minus-button');
             const glassVisual = document.getElementById('glass-visual');
             const presetBtns = document.querySelectorAll('.preset-btn');
+            const waterLevelRadios = document.querySelectorAll('input[name="waterLevel"]');
             const glassVisuals = {
                 wine: document.getElementById('wine-visual'),
                 flute: document.getElementById('flute-visual'),
                 water: document.getElementById('water-visual')
             };
 
-            let audioContext, oscillator, gainNode;
-            let isPlaying = false;
+            let audioContext, oscillator, gainNode, isPlaying = false;
             
             const PRESETS = {
-                wine: 550,   // Fréquence cible typique pour un verre à vin
-                flute: 800,  // Plus haut et fin, donc fréquence plus élevée
-                water: 450   // Souvent plus large et épais, fréquence plus basse
+                wine:  { empty: 550, half: 420 }, // Fréq. plus basse avec eau
+                flute: { empty: 800, half: 600 },
+                water: { empty: 450, half: 350 }
             };
 
             function updateFrequency(newFreq) {
@@ -257,23 +282,25 @@
                 }
             }
 
-            function selectPreset(presetType) {
-                // Mettre à jour la fréquence
-                updateFrequency(PRESETS[presetType]);
+            function updateTarget() {
+                // Trouver les sélections actives
+                const activePresetBtn = document.querySelector('.preset-btn.active');
+                const activeWaterRadio = document.querySelector('input[name="waterLevel"]:checked');
+                
+                const presetType = activePresetBtn.dataset.preset;
+                const waterStatus = activeWaterRadio.value;
 
-                // Mettre à jour la visualisation
+                // Mettre à jour la fréquence cible
+                const targetFreq = PRESETS[presetType][waterStatus];
+                updateFrequency(targetFreq);
+
+                // Mettre à jour la visualisation du type de verre
                 for (const type in glassVisuals) {
-                    glassVisuals[type].classList.add('hidden');
+                    glassVisuals[type].classList.toggle('hidden', type !== presetType);
                 }
-                glassVisuals[presetType].classList.remove('hidden');
-
-                // Mettre à jour le style des boutons
-                presetBtns.forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.preset === presetType) {
-                        btn.classList.add('active');
-                    }
-                });
+                
+                // Mettre à jour la visualisation du niveau d'eau
+                glassVisual.classList.toggle('has-water', waterStatus === 'half');
             }
 
             // Écouteurs d'événements
@@ -282,7 +309,15 @@
             minusBtn.addEventListener('click', () => updateFrequency(parseInt(slider.value) - 1));
             
             presetBtns.forEach(btn => {
-                btn.addEventListener('click', () => selectPreset(btn.dataset.preset));
+                btn.addEventListener('click', () => {
+                    presetBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateTarget();
+                });
+            });
+
+            waterLevelRadios.forEach(radio => {
+                radio.addEventListener('change', updateTarget);
             });
 
             startStopBtn.addEventListener('click', () => {
@@ -301,7 +336,7 @@
 
                 oscillator.type = 'sine';
                 oscillator.frequency.value = parseInt(slider.value);
-                gainNode.gain.value = 0.8; // Augmentons un peu le volume par défaut
+                gainNode.gain.value = 0.8;
 
                 oscillator.start();
                 isPlaying = true;
@@ -323,8 +358,8 @@
                 glassVisual.classList.toggle('vibrating', playing);
             }
             
-            // Initialiser avec le premier préréglage
-            selectPreset('wine');
+            // Initialiser l'état au chargement
+            updateTarget();
         });
     </script>
 </body>
