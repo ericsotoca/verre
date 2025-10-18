@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Verre Chantant - Recherche de Résonance</title>
+    
+    <!-- ========================= SECTION CSS ========================= -->
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --card-bg-color: #ffffff;
+            --text-color: #212529;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg-color);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .instructions {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .instructions h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .control-panel h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .frequency-display {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        #frequency-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .slider-container {
+            margin-bottom: 1rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .fine-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .fine-controls button {
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            background-color: var(--card-bg-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .fine-controls button:hover {
+            background-color: #e9ecef;
+        }
+
+        #start-stop-button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #start-stop-button.active {
+            background-color: #dc3545;
+        }
+
+        .visualization {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .glass {
+            position: relative;
+        }
+
+        .glass.vibrating {
+            animation: shake 0.2s infinite;
+        }
+
+        .glass-bowl {
+            width: 80px;
+            height: 70px;
+            border: 4px solid var(--secondary-color);
+            border-top: none;
+            border-radius: 0 0 40px 40px;
+        }
+        .glass-stem {
+            width: 6px;
+            height: 40px;
+            background-color: var(--secondary-color);
+            margin: 0 auto;
+        }
+        .glass-base {
+            width: 50px;
+            height: 6px;
+            background-color: var(--secondary-color);
+            border-radius: 3px;
+            margin: 0 auto;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 0); }
+            50% { transform: translate(-1px, 0); }
+            100% { transform: translate(1px, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================= SECTION HTML ======================== -->
+    <div class="container">
+        <header>
+            <h1>Le Verre Chantant</h1>
+            <p>Trouvez la fréquence de résonance d'un verre</p>
+        </header>
+
+        <section class="instructions">
+            <h2>Mode d'emploi</h2>
+            <ul>
+                <li>Placez un verre à vin sur une surface stable.</li>
+                <li>Positionnez votre téléphone près du verre, haut-parleur orienté vers lui.</li>
+                <li>Démarrez le son et balayez les fréquences avec le curseur.</li>
+                <li>Quand le verre commence à vibrer, affinez avec les boutons +/-.</li>
+            </ul>
+        </section>
+
+        <main class="control-panel">
+            <h2>Panneau de Contrôle</h2>
+            
+            <div class="frequency-display">
+                <span id="frequency-value">500</span> Hz
+            </div>
+
+            <div class="slider-container">
+                <input type="range" id="frequency-slider" min="300" max="1200" value="500" step="1">
+            </div>
+
+            <div class="fine-controls">
+                <button id="minus-button">-</button>
+                <button id="plus-button">+</button>
+            </div>
+
+            <button id="start-stop-button">Démarrer</button>
+
+            <div class="visualization">
+                <div id="glass-visual" class="glass">
+                    <div class="glass-bowl"></div>
+                    <div class="glass-stem"></div>
+                    <div class="glass-base"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ======================= SECTION JAVASCRIPT ====================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Références aux éléments du DOM
+            const slider = document.getElementById('frequency-slider');
+            const freqValueDisplay = document.getElementById('frequency-value');
+            const startStopBtn = document.getElementById('start-stop-button');
+            const plusBtn = document.getElementById('plus-button');
+            const minusBtn = document.getElementById('minus-button');
+            const glassVisual = document.getElementById('glass-visual');
+
+            // Paramètres Audio
+            let audioContext;
+            let oscillator;
+            let gainNode;
+            let isPlaying = false;
+
+            function updateFrequency(newFreq) {
+                // S'assurer que la fréquence reste dans les limites
+                newFreq = Math.max(parseInt(slider.min), Math.min(parseInt(slider.max), newFreq));
+                
+                slider.value = newFreq;
+                freqValueDisplay.textContent = newFreq;
+                if (isPlaying && oscillator) {
+                    oscillator.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 0.01);
+                }
+            }
+
+            // Écouteurs d'événements
+            slider.addEventListener('input', () => updateFrequency(parseInt(slider.value)));
+            plusBtn.addEventListener('click', () => updateFrequency(parseInt(slider.value) + 1));
+            minusBtn.addEventListener('click', () => updateFrequency(parseInt(slider.value) - 1));
+
+            startStopBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    stopSound();
+                } else {
+                    startSound();
+                }
+            });
+
+            function startSound() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                oscillator = audioContext.createOscillator();
+                gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.type = 'sine'; // Une onde pure est idéale pour la résonance
+                oscillator.frequency.value = parseInt(slider.value);
+                gainNode.gain.value = 0.7; // Volume un peu plus fort, mais attention
+
+                oscillator.start();
+                isPlaying = true;
+                updateUI(true);
+            }
+
+            function stopSound() {
+                if (oscillator) {
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.1);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                }
+                isPlaying = false;
+                updateUI(false);
+            }
+
+            function updateUI(playing) {
+                if (playing) {
+                    startStopBtn.textContent = 'Arrêter';
+                    startStopBtn.classList.add('active');
+                    glassVisual.classList.add('vibrating');
+                } else {
+                    startStopBtn.textContent = 'Démarrer';
+                    startStopBtn.classList.remove('active');
+                    glassVisual.classList.remove('vibrating');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
